@@ -66,6 +66,7 @@ add_subdirectory("${CMAKE_BINARY_DIR}/pmc-src"
         "${CMAKE_BINARY_DIR}/pmc-build")
 
 # tinyply
+if (BUILD_PLY_IO)
 configure_file(cmake/tinyply.CMakeLists.txt.in tinyply-download/CMakeLists.txt)
 execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/tinyply-download")
@@ -75,6 +76,7 @@ add_subdirectory("${CMAKE_BINARY_DIR}/tinyply-src"
         "${CMAKE_BINARY_DIR}/tinyply-build")
 target_include_directories(tinyply PUBLIC
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/tinyply-src/source>)
+endif ()
 
 # Building Targets
 set(TEASERPP_ROOT ${CMAKE_CURRENT_LIST_DIR})
