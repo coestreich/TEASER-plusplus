@@ -24,13 +24,19 @@ add_library(teaser_registration SHARED
         src/registration.cc
         src/graph.cc
         )
-target_include_directories(teaser_registration
-        PUBLIC ${EIGEN3_INCLUDE_DIR}
-        )
-target_link_libraries(teaser_registration
-        # PUBLIC Eigen3::Eigen
-        PRIVATE pmc
-        )
+if(NOT TARGET Eigen3::Eigen)
+  target_include_directories(teaser_registration
+    PUBLIC ${EIGEN3_INCLUDE_DIR}
+    )
+  target_link_libraries(teaser_registration
+    PRIVATE pmc
+    )
+else()
+  target_link_libraries(teaser_registration
+    PUBLIC Eigen3::Eigen
+    PRIVATE pmc
+    )
+endif()
 target_include_directories(teaser_registration PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
