@@ -13,10 +13,11 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Options
+option(BUILD_PLY_IO "Build TEASER++ I/O library (teaserpp::teaser_io)." OFF)
 option(BUILD_TESTS "Build tests" OFF)
 option(BUILD_TEASER_FPFH "Build TEASER++ wrappers for PCL FPFH estimation." OFF)
 option(BUILD_MATLAB_BINDINGS "Build MATLAB bindings" OFF)
-option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
+option(BUILD_PYTHON_BINDINGS "Build Python bindings" OFF)
 option(BUILD_DOC "Build documentation" ON)
 option(BUILD_WITH_MARCH_NATIVE "Build with flag march=native" OFF)
 option(ENABLE_DIAGNOSTIC_PRINT "Enable printing of diagnostic messages" OFF)
@@ -33,7 +34,7 @@ endif ()
 
 # Find dependencies
 # Eigen3
-find_package(Eigen3 3.3 QUIET REQUIRED NO_MODULE)
+find_package(Eigen3 QUIET REQUIRED NO_MODULE)
 
 if (BUILD_TEASER_FPFH)
     # Boost
