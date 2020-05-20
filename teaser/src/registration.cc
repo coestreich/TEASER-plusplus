@@ -323,7 +323,15 @@ void teaser::ScaleInliersSelector::solveForScale(
   Eigen::Matrix<bool, 1, Eigen::Dynamic> inliers_reverse =
       (raw_scales_reverse.array() - *scale).array().abs() <= alphas_reverse.array();
 
+#if EIGEN_VERSION_AT_LEAST(3, 3, 0)
   *inliers = inliers_forward && inliers_reverse;
+#else
+  // NOTE(tonioteran) Quick implementation to get this working, since
+  // `operator&&` is not available in older Eigen versions.
+  *inliers = Eigen::Matrix<bool, 1, Eigen::Dynamic>::Ones(inliers_forward.cols());
+  for (int i = 0; i < inliers_forward.cols(); i++)
+    (*inliers)(0, i) = inliers_forward(0, i) && inliers_reverse(0, i);
+#endif
 }
 
 void teaser::TLSTranslationSolver::solveForTranslation(
@@ -348,7 +356,14 @@ void teaser::TLSTranslationSolver::solveForTranslation(
   Eigen::Matrix<bool, 1, Eigen::Dynamic> inliers_temp(1, N);
   for (size_t i = 0; i < raw_translation.rows(); ++i) {
     tls_estimator_.estimate(raw_translation.row(i), alphas, &((*translation)(i)), &inliers_temp);
+#if EIGEN_VERSION_AT_LEAST(3, 3, 0)
     *inliers = *inliers && inliers_temp; // a point is an inlier iff. x,y,z are all inliers
+#else
+    // NOTE(tonioteran) Quick implementation to get this working, since
+    // `operator&&` is not available in older Eigen versions.
+    for (int i = 0; i < N; i++)
+      (*inliers)(0, i) = (*inliers)(0, i) && inliers_temp(0, i);
+#endif
   }
 }
 

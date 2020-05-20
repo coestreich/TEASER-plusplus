@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.5)
 project(teaserpp VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -13,10 +13,11 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Options
-option(BUILD_TESTS "Build tests" ON)
+option(BUILD_PLY_IO "Build TEASER++ I/O library (teaserpp::teaser_io)." OFF)
+option(BUILD_TESTS "Build tests" OFF)
 option(BUILD_TEASER_FPFH "Build TEASER++ wrappers for PCL FPFH estimation." OFF)
 option(BUILD_MATLAB_BINDINGS "Build MATLAB bindings" OFF)
-option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
+option(BUILD_PYTHON_BINDINGS "Build Python bindings" OFF)
 option(BUILD_DOC "Build documentation" ON)
 option(BUILD_WITH_MARCH_NATIVE "Build with flag march=native" OFF)
 option(ENABLE_DIAGNOSTIC_PRINT "Enable printing of diagnostic messages" OFF)
@@ -33,7 +34,7 @@ endif ()
 
 # Find dependencies
 # Eigen3
-find_package(Eigen3 3.3 QUIET REQUIRED NO_MODULE)
+find_package(Eigen3 QUIET REQUIRED NO_MODULE)
 
 if (BUILD_TEASER_FPFH)
     # Boost
@@ -44,14 +45,16 @@ if (BUILD_TEASER_FPFH)
 endif ()
 
 # googletest
-configure_file(cmake/GoogleTest.CMakeLists.txt.in googletest-download/CMakeLists.txt)
-execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
-execute_process(COMMAND "${CMAKE_COMMAND}" --build .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-add_subdirectory("${CMAKE_BINARY_DIR}/googletest-src"
-        "${CMAKE_BINARY_DIR}/googletest-build")
+if (BUILD_TESTS)
+  configure_file(cmake/GoogleTest.CMakeLists.txt.in googletest-download/CMakeLists.txt)
+  execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
+  execute_process(COMMAND "${CMAKE_COMMAND}" --build .
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  add_subdirectory("${CMAKE_BINARY_DIR}/googletest-src"
+    "${CMAKE_BINARY_DIR}/googletest-build")
+endif ()
 
 # pmc (Parallel Maximum Clique)
 configure_file(cmake/pmc.CMakeLists.txt.in pmc-download/CMakeLists.txt)
