@@ -21,6 +21,7 @@ option(BUILD_PYTHON_BINDINGS "Build Python bindings" OFF)
 option(BUILD_DOC "Build documentation" ON)
 option(BUILD_WITH_MARCH_NATIVE "Build with flag march=native" OFF)
 option(ENABLE_DIAGNOSTIC_PRINT "Enable printing of diagnostic messages" OFF)
+option(IGNORE_FOR_ASTROBEE "Skip these steps in order to compile for Astrobee" ON)
 
 if (ENABLE_DIAGNOSTIC_PRINT)
     message(STATUS "Enable printing of diagnostic messages.")
@@ -57,13 +58,17 @@ if (BUILD_TESTS)
 endif ()
 
 # pmc (Parallel Maximum Clique)
-configure_file(cmake/pmc.CMakeLists.txt.in pmc-download/CMakeLists.txt)
-execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/pmc-download")
-execute_process(COMMAND "${CMAKE_COMMAND}" --build .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/pmc-download")
-add_subdirectory("${CMAKE_BINARY_DIR}/pmc-src"
-        "${CMAKE_BINARY_DIR}/pmc-build")
+# Astrobee's build process does not permit for the execute_process command to
+# work appropriately.
+if (NOT IGNORE_FOR_ASTROBEE)
+  configure_file(cmake/pmc.CMakeLists.txt.in pmc-download/CMakeLists.txt)
+  execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
+          WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/pmc-download")
+  execute_process(COMMAND "${CMAKE_COMMAND}" --build .
+          WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/pmc-download")
+  add_subdirectory("${CMAKE_BINARY_DIR}/pmc-src"
+          "${CMAKE_BINARY_DIR}/pmc-build")
+endif ()
 
 # tinyply
 if (BUILD_PLY_IO)
