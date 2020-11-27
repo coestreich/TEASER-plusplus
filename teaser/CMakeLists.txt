@@ -2,60 +2,41 @@ project(teaser_source)
 include(GNUInstallDirs)
 
 # teaser_io library
-if (BUILD_PLY_IO)
-  add_library(teaser_io SHARED src/ply_io.cc)
-  target_link_libraries(teaser_io PRIVATE tinyply)
-  target_include_directories(teaser_io PUBLIC
-          $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-
-  install(TARGETS teaser_io
-          EXPORT teaserpp-export
-          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-          ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-          )
-  list(APPEND TEASERPP_EXPORTED_TARGETS teaser_io tinyply)
-  add_library(teaserpp::teaser_io ALIAS teaser_io)
-endif ()
-
-# teaser_registration library
-add_library(teaser_registration SHARED
-        src/registration.cc
-        src/graph.cc
-        )
-if(NOT TARGET Eigen3::Eigen)
-  target_include_directories(teaser_registration
-    PUBLIC ${EIGEN3_INCLUDE_DIR}
-    )
-  target_link_libraries(teaser_registration
-    PRIVATE pmc
-    )
-else()
-  target_link_libraries(teaser_registration
-    PUBLIC Eigen3::Eigen
-    PRIVATE pmc
-    )
-endif()
-target_include_directories(teaser_registration PUBLIC
+add_library(teaser_io SHARED src/ply_io.cc)
+target_link_libraries(teaser_io PRIVATE tinyply)
+target_include_directories(teaser_io PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-# NOTE(tonioteran) Hack to make OpenMP work for our old version of CMake.
-# https://cliutils.gitlab.io/modern-cmake/chapters/packages/OpenMP.html
-find_package(OpenMP REQUIRED)
-# For CMake < 3.9, we need to make the target ourselves.
-if(NOT TARGET OpenMP::OpenMP_CXX)
-  find_package(Threads REQUIRED)
-  add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
-  set_property(TARGET OpenMP::OpenMP_CXX
-    PROPERTY INTERFACE_COMPILE_OPTIONS ${OpenMP_CXX_FLAGS})
-  # Only works if the same flag is passed to the linker; use CMake 3.9+ otherwise (Intel, AppleClang)
-  set_property(TARGET OpenMP::OpenMP_CXX
-    PROPERTY INTERFACE_LINK_LIBRARIES ${OpenMP_CXX_FLAGS} Threads::Threads)
+install(TARGETS teaser_io
+        EXPORT teaserpp-export
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        )
+list(APPEND TEASERPP_EXPORTED_TARGETS teaser_io tinyply)
+add_library(teaserpp::teaser_io ALIAS teaser_io)
+
+# teaser_registration library
+add_library(teaser_registration SHARED
+        src/certification.cc
+        src/registration.cc
+        src/graph.cc
+        )
+target_link_libraries(teaser_registration
+        PUBLIC Eigen3::Eigen
+        PRIVATE pmc ${TEASERPP_BLAS_LAPACK_LIBS}
+        )
+target_include_directories(teaser_registration PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${SPECTRA_INCLUDE_DIRS}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(teaser_registration PRIVATE OpenMP::OpenMP_CXX)
 endif()
-target_link_libraries(teaser_registration PUBLIC OpenMP::OpenMP_CXX)
 
 install(TARGETS teaser_registration
     EXPORT teaserpp-export
@@ -80,7 +61,7 @@ if (BUILD_TEASER_FPFH)
                 PRIVATE ${MKL_LIBRARIES}
                 )
     endif ()
-    target_include_directories(teaser_features PUBLIC
+    target_include_directories(teaser_features PUBLIC ${PCL_INCLUDE_DIRS}
             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
@@ -112,3 +93,4 @@ install(EXPORT teaserpp-export
 )
 
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY ${SPECTRA_INCLUDE_DIRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

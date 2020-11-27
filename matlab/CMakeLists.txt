@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 project(teaser_matlab_bindings)
 
@@ -14,10 +14,9 @@ if (Matlab_FOUND)
     )
     set_target_properties(teaser_mex PROPERTIES COMPILE_FLAGS "-fvisibility=default")
     # copy MATLAB .m files to binary directory
-    file(COPY .
-            DESTINATION .
-            FILES_MATCHING
-            PATTERN *.m)
+    add_custom_command(TARGET teaser_mex POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_CURRENT_SOURCE_DIR}/*.m $<TARGET_FILE_DIR:teaser_mex>)
 else ()
     message(WARNING "MATLAB root directory not found. Failed to build MATLAB bindings.")
     set(BUILD_MATLAB_BINDINGS OFF)

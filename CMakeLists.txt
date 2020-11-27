@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 project(teaserpp VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -6,22 +6,24 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/" ${CMAKE_MODULE_PATH})
 
 # Check build types
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting build type to 'Release' as none was specified.")
     set(CMAKE_BUILD_TYPE "Release" CACHE
             STRING "Choose the type of build." FORCE)
-endif()
+endif ()
 
 # Options
-option(BUILD_PLY_IO "Build TEASER++ I/O library (teaserpp::teaser_io)." OFF)
-option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_TESTS "Build tests" ON)
 option(BUILD_TEASER_FPFH "Build TEASER++ wrappers for PCL FPFH estimation." OFF)
 option(BUILD_MATLAB_BINDINGS "Build MATLAB bindings" OFF)
-option(BUILD_PYTHON_BINDINGS "Build Python bindings" OFF)
+option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
 option(BUILD_DOC "Build documentation" ON)
 option(BUILD_WITH_MARCH_NATIVE "Build with flag march=native" OFF)
-option(ENABLE_DIAGNOSTIC_PRINT "Enable printing of diagnostic messages" OFF)
-option(IGNORE_FOR_ASTROBEE "Skip these steps in order to compile for Astrobee" ON)
+option(ENABLE_MKL "Try to use Eigen with MKL" OFF)
+option(ENABLE_DIAGNOSTIC_PRINT "Enable printing of diagnostic messages" ON)
+
+set(BUILD_TEASER_FPFH true)
+set(ENABLE_DIAGNOSTIC_PRINT false)
 
 if (ENABLE_DIAGNOSTIC_PRINT)
     message(STATUS "Enable printing of diagnostic messages.")
@@ -35,7 +37,18 @@ endif ()
 
 # Find dependencies
 # Eigen3
-find_package(Eigen3 QUIET REQUIRED NO_MODULE)
+find_package(Eigen3 3.2 QUIET REQUIRED NO_MODULE)
+if (ENABLE_MKL)
+    find_package(MKL)
+    if (MKL_FOUND)
+        message(STATUS "MKL found at: ${MKL_LIBRARIES}")
+        include_directories(${MKL_INCLUDE_DIR})
+        add_definitions(-DEIGEN_USE_MKL_ALL)
+        list(APPEND TEASERPP_BLAS_LAPACK_LIBS ${MKL_LIBRARIES})
+    else ()
+        message(STATUS "MKL not found.")
+    endif ()
+endif ()
 
 if (BUILD_TEASER_FPFH)
     # Boost
@@ -46,32 +59,25 @@ if (BUILD_TEASER_FPFH)
 endif ()
 
 # googletest
-if (BUILD_TESTS)
-  configure_file(cmake/GoogleTest.CMakeLists.txt.in googletest-download/CMakeLists.txt)
-  execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
-  execute_process(COMMAND "${CMAKE_COMMAND}" --build .
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
-  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-  add_subdirectory("${CMAKE_BINARY_DIR}/googletest-src"
-    "${CMAKE_BINARY_DIR}/googletest-build")
-endif ()
+configure_file(cmake/GoogleTest.CMakeLists.txt.in googletest-download/CMakeLists.txt)
+execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
+execute_process(COMMAND "${CMAKE_COMMAND}" --build .
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+add_subdirectory("${CMAKE_BINARY_DIR}/googletest-src"
+        "${CMAKE_BINARY_DIR}/googletest-build")
 
 # pmc (Parallel Maximum Clique)
-# Astrobee's build process does not permit for the execute_process command to
-# work appropriately.
-if (NOT IGNORE_FOR_ASTROBEE)
-  configure_file(cmake/pmc.CMakeLists.txt.in pmc-download/CMakeLists.txt)
-  execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-          WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/pmc-download")
-  execute_process(COMMAND "${CMAKE_COMMAND}" --build .
-          WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/pmc-download")
-  add_subdirectory("${CMAKE_BINARY_DIR}/pmc-src"
-          "${CMAKE_BINARY_DIR}/pmc-build")
-endif ()
+configure_file(cmake/pmc.CMakeLists.txt.in pmc-download/CMakeLists.txt)
+execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/pmc-download")
+execute_process(COMMAND "${CMAKE_COMMAND}" --build .
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/pmc-download")
+add_subdirectory("${CMAKE_BINARY_DIR}/pmc-src"
+        "${CMAKE_BINARY_DIR}/pmc-build")
 
 # tinyply
-if (BUILD_PLY_IO)
 configure_file(cmake/tinyply.CMakeLists.txt.in tinyply-download/CMakeLists.txt)
 execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/tinyply-download")
@@ -81,7 +87,14 @@ add_subdirectory("${CMAKE_BINARY_DIR}/tinyply-src"
         "${CMAKE_BINARY_DIR}/tinyply-build")
 target_include_directories(tinyply PUBLIC
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/tinyply-src/source>)
-endif ()
+
+# spectra
+configure_file(cmake/spectra.CMakeLists.txt.in spectra-download/CMakeLists.txt)
+execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/spectra-download")
+execute_process(COMMAND "${CMAKE_COMMAND}" --build .
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/spectra-download")
+set(SPECTRA_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/spectra-src/include")
 
 # Building Targets
 set(TEASERPP_ROOT ${CMAKE_CURRENT_LIST_DIR})
@@ -121,5 +134,5 @@ endif ()
 export(TARGETS ${TEASERPP_EXPORTED_TARGETS} FILE teaserpp-exports.cmake)
 
 install(FILES cmake/teaserppConfig.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/teaserpp
-)
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/teaserpp
+        )
