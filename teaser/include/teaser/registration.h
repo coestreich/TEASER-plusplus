@@ -735,7 +735,7 @@ public:
    * Reset the solver using the provided params
    * @param params a Params struct
    */
-  void reset(const Params& params) {
+  void reset(Params params) {
     params_ = params;
 
     // Initialize the scale estimator
@@ -755,18 +755,22 @@ public:
         params_.rotation_gnc_factor, params_.noise_bound};
     switch (params_.rotation_estimation_algorithm) {
     case ROTATION_ESTIMATION_ALGORITHM::GNC_TLS: { // GNC-TLS method
-      setRotationEstimator(std::make_unique<teaser::GNCTLSRotationSolver>(rotation_params));
+      setRotationEstimator(std::unique_ptr<teaser::GNCTLSRotationSolver>(new teaser::GNCTLSRotationSolver(std::forward<teaser::GNCRotationSolver::Params>(rotation_params))));
+      //setRotationEstimator(std::make_unique<teaser::GNCTLSRotationSolver>(rotation_params));
       break;
     }
     case ROTATION_ESTIMATION_ALGORITHM::FGR: { // FGR method
-      setRotationEstimator(std::make_unique<teaser::FastGlobalRegistrationSolver>(rotation_params));
+      setRotationEstimator(std::unique_ptr<teaser::FastGlobalRegistrationSolver>(new teaser::FastGlobalRegistrationSolver(std::forward<teaser::GNCRotationSolver::Params>(rotation_params))));
+      //setRotationEstimator(std::make_unique<teaser::FastGlobalRegistrationSolver>(rotation_params));
       break;
     }
     }
 
     // Initialize the translation estimator
     setTranslationEstimator(
-        std::make_unique<teaser::TLSTranslationSolver>(params_.noise_bound, params_.cbar2));
+        std::unique_ptr<teaser::TLSTranslationSolver>(new teaser::TLSTranslationSolver(std::forward<double>(params_.noise_bound), std::forward<double>(params_.cbar2))));
+    //setTranslationEstimator(
+    //    std::make_unique<teaser::TLSTranslationSolver>(params_.noise_bound, params_.cbar2));
 
     // Clear member variables
     max_clique_.clear();
