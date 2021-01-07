@@ -13,10 +13,10 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif ()
 
 # Options
-option(BUILD_TESTS "Build tests" ON)
-option(BUILD_TEASER_FPFH "Build TEASER++ wrappers for PCL FPFH estimation." OFF)
+option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_TEASER_FPFH "Build TEASER++ wrappers for PCL FPFH estimation." ON)
 option(BUILD_MATLAB_BINDINGS "Build MATLAB bindings" OFF)
-option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
+option(BUILD_PYTHON_BINDINGS "Build Python bindings" OFF)
 option(BUILD_DOC "Build documentation" ON)
 option(BUILD_WITH_MARCH_NATIVE "Build with flag march=native" OFF)
 option(ENABLE_MKL "Try to use Eigen with MKL" OFF)
@@ -58,43 +58,48 @@ if (BUILD_TEASER_FPFH)
     find_package(PCL 1.8 QUIET REQUIRED COMPONENTS common io features kdtree)
 endif ()
 
+# gtest is already installed with Astrobee
 # googletest
-configure_file(cmake/GoogleTest.CMakeLists.txt.in googletest-download/CMakeLists.txt)
-execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
-execute_process(COMMAND "${CMAKE_COMMAND}" --build .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-add_subdirectory("${CMAKE_BINARY_DIR}/googletest-src"
-        "${CMAKE_BINARY_DIR}/googletest-build")
+#configure_file(cmake/GoogleTest.CMakeLists.txt.in googletest-download/CMakeLists.txt)
+#execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
+#        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
+#execute_process(COMMAND "${CMAKE_COMMAND}" --build .
+#        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
+#execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
+#        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/googletest-download")
+#execute_process(COMMAND "${CMAKE_COMMAND}" --build .
+#        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/googletest-download")
+#set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+#add_subdirectory("${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/googletest-src"
+#        "${CMAKE_BINARY_DIR}/googletest-build")
 
 # pmc (Parallel Maximum Clique)
 configure_file(cmake/pmc.CMakeLists.txt.in pmc-download/CMakeLists.txt)
 execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/pmc-download")
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/pmc-download")
 execute_process(COMMAND "${CMAKE_COMMAND}" --build .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/pmc-download")
-add_subdirectory("${CMAKE_BINARY_DIR}/pmc-src"
-        "${CMAKE_BINARY_DIR}/pmc-build")
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/pmc-download")
+add_subdirectory("${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/pmc-src"
+        "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/pmc-build")
 
 # tinyply
 configure_file(cmake/tinyply.CMakeLists.txt.in tinyply-download/CMakeLists.txt)
 execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/tinyply-download")
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/tinyply-download")
 execute_process(COMMAND "${CMAKE_COMMAND}" --build .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/tinyply-download")
-add_subdirectory("${CMAKE_BINARY_DIR}/tinyply-src"
-        "${CMAKE_BINARY_DIR}/tinyply-build")
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/tinyply-download")
+add_subdirectory("${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/tinyply-src"
+        "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/tinyply-build")
 target_include_directories(tinyply PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/tinyply-src/source>)
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/tinyply-src/source>)
 
 # spectra
 configure_file(cmake/spectra.CMakeLists.txt.in spectra-download/CMakeLists.txt)
 execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/spectra-download")
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/spectra-download")
 execute_process(COMMAND "${CMAKE_COMMAND}" --build .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/spectra-download")
-set(SPECTRA_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/spectra-src/include")
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/spectra-download")
+set(SPECTRA_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/spectra-src/include")
 
 # Building Targets
 set(TEASERPP_ROOT ${CMAKE_CURRENT_LIST_DIR})

@@ -741,10 +741,12 @@ public:
     // Initialize the scale estimator
     if (params_.estimate_scaling) {
       setScaleEstimator(
-          std::make_unique<teaser::TLSScaleSolver>(params_.noise_bound, params_.cbar2));
+          std::unique_ptr<teaser::TLSScaleSolver>(new teaser::TLSScaleSolver(std::forward<double>(params_.noise_bound), std::forward<double>(params_.cbar2))));
+          //std::make_unique<teaser::TLSScaleSolver>(params_.noise_bound, params_.cbar2));
     } else {
       setScaleEstimator(
-          std::make_unique<teaser::ScaleInliersSelector>(params_.noise_bound, params_.cbar2));
+          std::unique_ptr<teaser::ScaleInliersSelector>(new teaser::ScaleInliersSelector(std::forward<double>(params_.noise_bound), std::forward<double>(params_.cbar2))));
+          //std::make_unique<teaser::ScaleInliersSelector>(params_.noise_bound, params_.cbar2));
     }
 
     // Initialize the rotation estimator

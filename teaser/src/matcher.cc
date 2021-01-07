@@ -179,7 +179,7 @@ void Matcher::advancedMatching(bool use_crosscheck, bool use_tuple_test, float t
   /// output : corres
   ///////////////////////////
   if (use_crosscheck) {
-    std::cout << "CROSS CHECK" << std::endl;
+    //std::cout << "CROSS CHECK" << std::endl;
     // build data structure for cross check
     corres.clear();
     corres_cross.clear();
@@ -211,7 +211,7 @@ void Matcher::advancedMatching(bool use_crosscheck, bool use_tuple_test, float t
       }
     }
   } else {
-    std::cout << "Skipping Cross Check." << std::endl;
+    //std::cout << "Skipping Cross Check." << std::endl;
   }
 
   ///////////////////////////
@@ -220,7 +220,7 @@ void Matcher::advancedMatching(bool use_crosscheck, bool use_tuple_test, float t
   /// output : corres
   ///////////////////////////
   if (use_tuple_test && tuple_scale != 0) {
-    std::cout << "TUPLE CONSTRAINT" << std::endl;
+    //std::cout << "TUPLE CONSTRAINT" << std::endl;
     srand(time(NULL));
     int rand0, rand1, rand2;
     int idi0, idi1, idi2;
@@ -278,7 +278,7 @@ void Matcher::advancedMatching(bool use_crosscheck, bool use_tuple_test, float t
     for (size_t i = 0; i < corres_tuple.size(); ++i)
       corres.push_back(std::pair<int, int>(corres_tuple[i].first, corres_tuple[i].second));
   } else {
-    std::cout << "Skipping Tuple Constraint." << std::endl;
+    //std::cout << "Skipping Tuple Constraint." << std::endl;
   }
 
   if (swapped) {
