@@ -76,30 +76,30 @@ endif ()
 # pmc (Parallel Maximum Clique)
 configure_file(cmake/pmc.CMakeLists.txt.in pmc-download/CMakeLists.txt)
 execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/pmc-download")
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/TEASER-plusplus/pmc-download")
 execute_process(COMMAND "${CMAKE_COMMAND}" --build .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/pmc-download")
-add_subdirectory("${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/pmc-src"
-        "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/pmc-build")
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/TEASER-plusplus/pmc-download")
+add_subdirectory("${CMAKE_BINARY_DIR}/develop/TEASER-plusplus/pmc-src"
+        "${CMAKE_BINARY_DIR}/develop/TEASER-plusplus/pmc-build")
 
 # tinyply
 configure_file(cmake/tinyply.CMakeLists.txt.in tinyply-download/CMakeLists.txt)
 execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/tinyply-download")
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/TEASER-plusplus/tinyply-download")
 execute_process(COMMAND "${CMAKE_COMMAND}" --build .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/tinyply-download")
-add_subdirectory("${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/tinyply-src"
-        "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/tinyply-build")
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/TEASER-plusplus/tinyply-download")
+add_subdirectory("${CMAKE_BINARY_DIR}/develop/TEASER-plusplus/tinyply-src"
+        "${CMAKE_BINARY_DIR}/develop/TEASER-plusplus/tinyply-build")
 target_include_directories(tinyply PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/tinyply-src/source>)
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/develop/TEASER-plusplus/tinyply-src/source>)
 
 # spectra
 configure_file(cmake/spectra.CMakeLists.txt.in spectra-download/CMakeLists.txt)
 execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/spectra-download")
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/TEASER-plusplus/spectra-download")
 execute_process(COMMAND "${CMAKE_COMMAND}" --build .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/spectra-download")
-set(SPECTRA_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/develop/astrobee-slam/external/TEASER-plusplus/spectra-src/include")
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/develop/TEASER-plusplus/spectra-download")
+set(SPECTRA_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/develop/TEASER-plusplus/spectra-src/include")
 
 # Building Targets
 set(TEASERPP_ROOT ${CMAKE_CURRENT_LIST_DIR})
